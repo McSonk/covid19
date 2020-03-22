@@ -17,7 +17,7 @@ def __generic__plot__(df, country, ld_date, display_label, language):
     else:
         date_label = 'Date'
         cases_label = 'Number of cases'
-        first_det_label = "First case for %s detected on %s. %s days have passed since"
+        first_det_label = "First case for %s detected on %s. %s days have passed since then"
         lock_started_label = "Lockdown started on %s"
         lock_label = 'Lockdown started'
         window_label = '14 days window'
@@ -42,7 +42,7 @@ def __generic__plot__(df, country, ld_date, display_label, language):
 def plot_country_cases(df, country, ld_date=None, language='en'):
     if language == 'es':
         new_cases_label = 'Casos confirmados en %s'
-        y_label = 'Número de nuevos casos'
+        y_label = 'Número de casos'
         n_cases_label = 'Número de casos'
     else:
         new_cases_label = 'Confirmed cases in %s'
@@ -65,6 +65,44 @@ def plot_country_changes(df, country, ld_date=None, language='en'):
         y_label = 'Number of new cases'
         n_cases_label = 'New cases'
         max_number_label = 'Max number of new cases: %s'
+        max_label = 'Peak on %s'
+    __generic__plot__(df, country, ld_date, n_cases_label, language)
+    max_cases = df[country].max()
+    print(max_number_label % max_cases)
+    plt.axhline(max_cases, linestyle='-.', color='b', label=(max_label % max_cases))
+    plt.axhline(0, linestyle=':', color='black')
+    plt.title(new_cases_label % country)
+    plt.ylabel(y_label)
+    plt.legend()
+    plt.show()
+
+
+def plot_country_deaths(df, country, ld_date=None, language='en'):
+    if language == 'es':
+        new_cases_label = 'Muertes confirmadas en %s'
+        y_label = 'Número de muertes'
+        n_cases_label = 'Número de muertes'
+    else:
+        new_cases_label = 'Confirmed deaths in %s'
+        y_label = 'Number of deaths'
+        n_cases_label = 'Number of deaths'
+    __generic__plot__(df, country, ld_date, n_cases_label, language)
+    plt.title(new_cases_label % country)
+    plt.ylabel(y_label)
+    plt.show()
+
+def plot_death_changes(df, country, ld_date=None, language='en'):
+    if language == 'es':
+        new_cases_label = 'Muertes en %s'
+        y_label = 'Número de muertes reportadas'
+        n_cases_label = 'Muertes reportadas'
+        max_number_label = 'Máximo número de muertes reportadas: %s'
+        max_label = 'Techo en %s'
+    else:
+        new_cases_label = 'Confirmed deaths in %s'
+        y_label = 'Number of deaths'
+        n_cases_label = 'New deaths'
+        max_number_label = 'Max number of deaths: %s'
         max_label = 'Peak on %s'
     __generic__plot__(df, country, ld_date, n_cases_label, language)
     max_cases = df[country].max()
