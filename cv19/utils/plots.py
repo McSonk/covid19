@@ -91,16 +91,29 @@ def plot_country_changes(df, country, ld_date=None, language='en'):
     plt.show()
 
 
-def plot_country_deaths(df, country, ld_date=None, language='en'):
+def plot_country_deaths(df, country, ld_date=None, language='en', changes=None):
     if language == 'es':
         new_cases_label = 'Muertes confirmadas en %s'
         y_label = 'Número de muertes'
         n_cases_label = 'Número de muertes'
+        cases_per_day_lab = 'Muertes al día reportadas'
+        max_number_label = 'Máximo número de muertes reportadas: %s'
+        max_label = 'Techo de muertes diarias en %s'
     else:
         new_cases_label = 'Confirmed deaths in %s'
         y_label = 'Number of deaths'
         n_cases_label = 'Number of deaths'
-    __generic__plot__(df, country, ld_date, n_cases_label, language)
+        cases_per_day_lab = 'Daily deaths reported'
+        max_number_label = 'Highest number of daily deaths: %s'
+        max_label = 'Peak of daily deaths on %s'
+    first_case_date = __generic__plot__(df, country, ld_date, n_cases_label, language)
+    if changes is not None:
+        max_cases = changes[country].max()
+        print(max_number_label % f'{max_cases:,}')
+        changes[country].iloc[changes.index >= first_case_date].plot.bar(label=cases_per_day_lab)
+        plt.axhline(max_cases, linestyle='-.', color='b', label=(max_label % max_cases))
+        plt.axhline(0, linestyle=':', color='black')
+        plt.legend()
     plt.title(new_cases_label % country)
     plt.ylabel(y_label)
     plt.show()
