@@ -1,15 +1,15 @@
-from datetime import datetime, timedelta
 from matplotlib import pyplot as plt
-import matplotlib.dates as mdates
 
-DATETIME_FORMAT = '%Y-%m-%d'
+from cv19.utils.date import elapsed_time, add_days
+
 WINDOW_DAYS = 14
+
 
 def __generic__plot__(df, country, ld_date, display_label, language):
     if language == 'es':
         date_label = 'Fecha'
         cases_label = 'Número de casos'
-        first_det_label = 'Primer caso en %s detectado el %s'
+        first_det_label = 'Primer caso en %s detectado el %s. Han pasado %s días desde entonces'
         lock_started_label = 'Cuarentena iniciada en %s'
         lock_label = 'Inició la cuarentena'
         window_label = "Ventana de 14 días"
@@ -17,7 +17,7 @@ def __generic__plot__(df, country, ld_date, display_label, language):
     else:
         date_label = 'Date'
         cases_label = 'Number of cases'
-        first_det_label = "First case for %s detected on %s"
+        first_det_label = "First case for %s detected on %s. %s days have passed since"
         lock_started_label = "Lockdown started on %s"
         lock_label = 'Lockdown started'
         window_label = '14 days window'
@@ -26,11 +26,11 @@ def __generic__plot__(df, country, ld_date, display_label, language):
     plt.figure(figsize=(15, 8))
     plt.xlabel(date_label)
     first_detected = df[country].where(lambda x: x > 0).dropna().index[0]
+    elapsed_days = elapsed_time(first_detected)
     plt.plot(df.loc[df.index > first_detected, country], label=cases_label)
-    print(first_det_label % (country, first_detected))
+    print(first_det_label % (country, first_detected, elapsed_days))
     if ld_date is not None:
-        end_date = datetime.strptime(ld_date, DATETIME_FORMAT) + timedelta(days=WINDOW_DAYS)
-        end_date_str = end_date.strftime(DATETIME_FORMAT)
+        end_date_str = add_days(ld_date, WINDOW_DAYS)
         print(lock_started_label % (ld_date))
         plt.axvline(ld_date, linestyle='--', color='r', label=lock_label)
         plt.axvline(end_date_str, linestyle=':', color='r', label=window_label)
