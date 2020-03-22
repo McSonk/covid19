@@ -27,7 +27,7 @@ def __generic__plot__(df, country, ld_date, display_label, language):
     plt.xlabel(date_label)
     first_detected = df[country].where(lambda x: x > 0).dropna().index[0]
     elapsed_days = elapsed_time(first_detected)
-    plt.plot(df.loc[df.index > first_detected, country], label=cases_label)
+    df.loc[df.index >= first_detected, country].plot(label=cases_label)
     print(first_det_label % (country, first_detected, elapsed_days))
     if ld_date is not None:
         end_date_str = add_days(ld_date, WINDOW_DAYS)
@@ -38,17 +38,31 @@ def __generic__plot__(df, country, ld_date, display_label, language):
     num_of_cases = df[country].dropna().iloc[-1]
     plt.xticks(rotation=80)
     print(current_num_label % f'{num_of_cases:,}')
+    return first_detected
 
-def plot_country_cases(df, country, ld_date=None, language='en'):
+def plot_country_cases(df, country, ld_date=None, language='en', changes=None):
     if language == 'es':
         new_cases_label = 'Casos confirmados en %s'
         y_label = 'Número de casos'
         n_cases_label = 'Número de casos'
+        cases_per_day_lab = 'Nuevos casos reportados'
+        max_number_label = 'Máximo número de nuevos casos: %s'
+        max_label = 'Techo de nuevos casos en %s'
     else:
         new_cases_label = 'Confirmed cases in %s'
         y_label = 'Number of cases'
         n_cases_label = 'Number of cases'
-    __generic__plot__(df, country, ld_date, n_cases_label, language)
+        cases_per_day_lab = 'New cases reported'
+        max_number_label = 'Max number of new cases: %s'
+        max_label = 'Peak of new cases on %s'
+    first_case_date = __generic__plot__(df, country, ld_date, n_cases_label, language)
+    if changes is not None:
+        max_cases = changes[country].max()
+        print(max_number_label % f'{max_cases:,}')
+        changes[country].iloc[changes.index >= first_case_date].plot.bar(label=cases_per_day_lab)
+        plt.axhline(max_cases, linestyle='-.', color='b', label=(max_label % max_cases))
+        plt.axhline(0, linestyle=':', color='black')
+        plt.legend()
     plt.title(new_cases_label % country)
     plt.ylabel(y_label)
     plt.show()
