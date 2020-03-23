@@ -143,7 +143,7 @@ def plot_death_changes(df, country, ld_date=None, language='en'):
 
 
 def plot_top5(df, from_date=None):
-    top5 = df.iloc[-1].sort_values(ascending=False).head(5).index
+    top5 = df.drop("the world", 1).iloc[-1].sort_values(ascending=False).head(5).index
     plt.figure(figsize=(15, 8))
     plt.title('Top 5 countries by confirmed cases')
     plt.xlabel('Date')
