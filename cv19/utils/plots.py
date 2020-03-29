@@ -1,11 +1,11 @@
 from matplotlib import pyplot as plt
-
+from pandas import DataFrame
 from cv19.utils.date import elapsed_time, add_days
 
 WINDOW_DAYS = 14
 
 
-def __generic__plot__(df, country, ld_date, display_label, language):
+def __generic__plot__(df: DataFrame, country: str, ld_date: str, display_label: str, language: str, changes: DataFrame):
     if language == 'es':
         date_label = 'Fecha'
         cases_label = 'Número de casos'
@@ -23,24 +23,38 @@ def __generic__plot__(df, country, ld_date, display_label, language):
         window_label = '14 days window'
         current_num_label = "Currently having %s confirmed cases"
 
-    plt.figure(figsize=(15, 8))
-    plt.xlabel(date_label)
     first_detected = df[country].where(lambda x: x > 0).dropna().index[0]
     elapsed_days = elapsed_time(first_detected)
-    df.loc[df.index >= first_detected, country].plot(label=cases_label)
+    aux = df.loc[df.index >= first_detected, country]
+    aux.index = aux.index.format()
+
+    
+    plt.figure(figsize=(15, 8))
+    plt.xlabel(date_label)
     print(first_det_label % (country, first_detected, elapsed_days))
+    aux.plot(label=cases_label)
     if ld_date is not None:
         end_date_str = add_days(ld_date, WINDOW_DAYS)
         print(lock_started_label % (ld_date))
         plt.axvline(ld_date, linestyle='--', color='r', label=lock_label)
         plt.axvline(end_date_str, linestyle=':', color='r', label=window_label)
         plt.legend()
+    if changes is not None:
+        max_cases = changes[country].max()
+        #print(max_number_label % f'{max_cases:,}')
+        aux_c = changes.loc[changes.index >= first_detected, country]
+        aux_c.index = aux_c.index.format()
+        aux_c.plot(kind='bar')
+        #changes[country].iloc[changes.index >= first_case_date].plot.bar(label=cases_per_day_lab)
+        #df.loc[df.index >= first_detected, country].plot(ax = ax)
+        #plt.axhline(max_cases, linestyle='-.', color='b', label=(max_label % max_cases))
+        plt.legend()
+
     num_of_cases = df[country].dropna().iloc[-1]
-    plt.xticks(rotation=80)
     print(current_num_label % f'{num_of_cases:,}')
     return first_detected
 
-def plot_country_cases(df, country, ld_date=None, language='en', changes=None):
+def plot_country_cases(df: DataFrame, country: str, ld_date=None, language='en', changes=None):
     if language == 'es':
         new_cases_label = 'Casos confirmados en %s'
         y_label = 'Número de casos'
@@ -55,14 +69,7 @@ def plot_country_cases(df, country, ld_date=None, language='en', changes=None):
         cases_per_day_lab = 'New cases reported'
         max_number_label = 'Max number of new cases: %s'
         max_label = 'Peak of new cases on %s'
-    first_case_date = __generic__plot__(df, country, ld_date, n_cases_label, language)
-    if changes is not None:
-        max_cases = changes[country].max()
-        print(max_number_label % f'{max_cases:,}')
-        changes[country].iloc[changes.index >= first_case_date].plot.bar(label=cases_per_day_lab)
-        plt.axhline(max_cases, linestyle='-.', color='b', label=(max_label % max_cases))
-        plt.axhline(0, linestyle=':', color='black')
-        plt.legend()
+    __generic__plot__(df, country, ld_date, n_cases_label, language, changes)
     plt.title(new_cases_label % country)
     plt.ylabel(y_label)
     plt.show()

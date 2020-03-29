@@ -3,9 +3,8 @@ from datetime import datetime, timedelta
 DATETIME_FORMAT = '%Y-%m-%d'
 
 def elapsed_time(orig_date : str) -> int:
-    original = datetime.strptime(orig_date, DATETIME_FORMAT)
     now = datetime.now()
-    delta = now - original
+    delta = now - orig_date
     return delta.days
 
 
