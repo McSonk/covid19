@@ -8,7 +8,7 @@ WINDOW_DAYS = 14
 def __generic__plot__(df: DataFrame, country: str, ld_date: str, language: str, changes: DataFrame, labels):
     if language == 'es':
         labels['date_label'] = 'Fecha'
-        labels['cases_label'] = 'Número de casos'
+        labels['cases_label'] = 'Acumulado de casos'
         labels['first_det_label'] = 'Primer caso en %s detectado el %s. Han pasado %s días desde entonces'
         labels['lock_started_label'] = 'Cuarentena iniciada en %s'
         labels['lock_label'] = 'Inició la cuarentena'
@@ -16,7 +16,7 @@ def __generic__plot__(df: DataFrame, country: str, ld_date: str, language: str, 
         labels['current_num_label'] = 'Actualmente hay %s casos confirmados'
     else:
         labels['date_label'] = 'Date'
-        labels['cases_label'] = 'Number of cases'
+        labels['cases_label'] = 'Cumulative cases'
         labels['first_det_label'] = "First case for %s detected on %s. %s days have passed since then"
         labels['lock_started_label'] = "Lockdown started on %s"
         labels['lock_label'] = 'Lockdown started'
@@ -43,7 +43,7 @@ def __generic__plot__(df: DataFrame, country: str, ld_date: str, language: str, 
     if ld_date is not None:
         print(labels['lock_started_label'] % (ld_date))
         ld_pos = aux[aux.index < ld_date].size
-        plt.axvline(ld_pos, linestyle=':', color='r', label=labels['window_label'])
+        plt.axvline(ld_pos, linestyle=':', color='r', label=labels['lock_started_label'])
         plt.axvline(ld_pos + WINDOW_DAYS, linestyle=':', color='r', label=labels['window_label'])
         plt.legend()
 
@@ -73,30 +73,6 @@ def plot_country_cases(df: DataFrame, country: str, ld_date=None, language='en',
     plt.ylabel(labels['y_label'])
     plt.show()
 
-def plot_country_changes(df, country, ld_date=None, language='en'):
-    if language == 'es':
-        new_cases_label = 'Nuevos casos en %s'
-        y_label = 'Número de nuevos casos'
-        n_cases_label = 'Nuevos casos'
-        max_number_label = 'Máximo número de nuevos casos: %s'
-        max_label = 'Techo en %s'
-    else:
-        new_cases_label = 'Confirmed new cases in %s'
-        y_label = 'Number of new cases'
-        n_cases_label = 'New cases'
-        max_number_label = 'Max number of new cases: %s'
-        max_label = 'Peak on %s'
-    __generic__plot__(df, country, ld_date, n_cases_label, language)
-    max_cases = df[country].max()
-    print(max_number_label % max_cases)
-    plt.axhline(max_cases, linestyle='-.', color='b', label=(max_label % max_cases))
-    plt.axhline(0, linestyle=':', color='black')
-    plt.title(new_cases_label % country)
-    plt.ylabel(y_label)
-    plt.legend()
-    plt.show()
-
-
 def plot_country_deaths(df, country, ld_date=None, language='en', changes=None):
     labels = dict()
     if language == 'es':
@@ -116,29 +92,6 @@ def plot_country_deaths(df, country, ld_date=None, language='en', changes=None):
     first_case_date = __generic__plot__(df, country, ld_date, language, changes, labels=labels)
     plt.title(labels['new_cases_label'] % country)
     plt.ylabel(labels['y_label'])
-    plt.show()
-
-def plot_death_changes(df, country, ld_date=None, language='en'):
-    if language == 'es':
-        new_cases_label = 'Muertes en %s'
-        y_label = 'Número de muertes reportadas'
-        n_cases_label = 'Muertes reportadas'
-        max_number_label = 'Máximo número de muertes reportadas: %s'
-        max_label = 'Techo en %s'
-    else:
-        new_cases_label = 'Confirmed deaths in %s'
-        y_label = 'Number of deaths'
-        n_cases_label = 'New deaths'
-        max_number_label = 'Max number of deaths: %s'
-        max_label = 'Peak on %s'
-    __generic__plot__(df, country, ld_date, n_cases_label, language)
-    max_cases = df[country].max()
-    print(max_number_label % max_cases)
-    plt.axhline(max_cases, linestyle='-.', color='b', label=(max_label % max_cases))
-    plt.axhline(0, linestyle=':', color='black')
-    plt.title(new_cases_label % country)
-    plt.ylabel(y_label)
-    plt.legend()
     plt.show()
 
 
