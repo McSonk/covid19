@@ -1,6 +1,8 @@
 from matplotlib import pyplot as plt
 from pandas import DataFrame
-from cv19.utils.date import elapsed_time, add_days
+
+from cv19.utils.date import add_days, elapsed_time
+from cv19.utils.manipulation import first_case_date
 
 WINDOW_DAYS = 14
 
@@ -23,7 +25,7 @@ def __generic__plot__(df: DataFrame, country: str, ld_date: str, language: str, 
         labels['window_label'] = '14 days window'
         labels['current_num_label'] = "Currently having %s confirmed cases"
 
-    first_detected = df[country].where(lambda x: x > 0).dropna().index[0]
+    first_detected = first_case_date(df, country)
     elapsed_days = elapsed_time(first_detected)
     aux = df.loc[df.index >= first_detected, country]
     aux.index = aux.index.format()

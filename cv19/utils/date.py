@@ -5,7 +5,7 @@ DATETIME_FORMAT = '%Y-%m-%d'
 def elapsed_time(orig_date : str) -> int:
     now = datetime.now()
     delta = now - orig_date
-    return delta.days
+    return delta.days + 1
 
 
 def add_days(orig_date: str, days: int):
