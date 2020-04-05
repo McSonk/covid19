@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import pandas as pd
 from pandas import DataFrame, Series
 
 
@@ -39,3 +40,13 @@ def which_countries_before(df: DataFrame, search_country: str):
             if country not in infected_countries:
                 infected_countries.append(country)
     return None
+
+
+def infected_per_day(df: DataFrame, benchmark: str, countries: list, previous_dates=None):
+    first_case = first_case_date(df, benchmark)
+    base_filter = df.loc[df.index >= first_case, benchmark].reset_index(drop=True)
+    size = base_filter.size
+    target = pd.DataFrame(index=range(0, size))
+    target[benchmark] = base_filter
+    dates = build_first_n_df(df, countries, target.size, target, previous_dates)
+    return target, dates
